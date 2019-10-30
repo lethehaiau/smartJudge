@@ -10,6 +10,11 @@ RUN apt-get update && \
 
 USER $DEV_USER
 
+RUN sudo apt-get install -y cython lp-solve liblpsolve55-dev python-pip
+RUN git clone "https://github.com/iradicek/clara" /tmp/clara && cd /tmp/clara && sudo make install
+
+ENV LD_LIBRARY_PATH=/usr/lib/lp_solve/
+
 CMD ["sleep", "infinity"]
 
 LABEL maintainer="Herman Zvonimir Došilović, hermanz.dosilovic@gmail.com"
