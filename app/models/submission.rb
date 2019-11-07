@@ -32,6 +32,7 @@
 #  wall_time                                  :decimal(, )
 #  compiler_options                           :string
 #  command_line_arguments                     :string
+#  problem_id                                 :integer
 #
 # Indexes
 #
