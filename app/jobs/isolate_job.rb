@@ -60,8 +60,8 @@ class IsolateJob < ApplicationJob
     [stdin_file, stdout_file, stderr_file, metadata_file].each do |f|
       initialize_file(f)
     end
-
-    File.open(source_file, "wb") { |f| f.write(submission.source_code) }
+    args_parser = "import sys\nfrom ast import literal_eval\n\nif __name__ == '__main__':\n    args = []\n    for e in range(1, len(sys.argv)):\n        try:\n            value = literal_eval(sys.argv[e])\n        except:\n            # handle the case when arg is a string literal\n            value = sys.argv[e]\n        args.append(value)\n    print(computeDeriv(*args))"
+    File.open(source_file, "wb") { |f| f.write("#{submission.source_code}\n#{args_parser}") }
     File.open(stdin_file, "wb") { |f| f.write(submission.stdin) }
   end
 
@@ -168,6 +168,7 @@ class IsolateJob < ApplicationJob
 
   def verify
     submission.finished_at ||= DateTime.now
+    command_line_arguments = submission.command_line_arguments.to_s.strip.encode("UTF-8", invalid: :replace).gsub(/[$&;<>|`]/, "")
 
     metadata = get_metadata
 
@@ -208,7 +209,7 @@ class IsolateJob < ApplicationJob
       submission.message = `clara feedback --feedtype python  \
       /tmp/clara/examples/ex1.py #{source_file} \
       --entryfnc computeDeriv \
-      --args "[[[4.5]], [[1.0,3.0,5.5]]]" \
+      --args "[[#{command_line_arguments}]]" \
       --verbose 0`.chomp
     end
   end
