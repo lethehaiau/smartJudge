@@ -1,4 +1,4 @@
-FROM judge0/api
+FROM judge0/api:1.4.0
 
 ARG DEV_USER=judge0
 ARG DEV_USER_ID=1000
