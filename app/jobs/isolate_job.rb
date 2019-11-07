@@ -204,6 +204,13 @@ class IsolateJob < ApplicationJob
        )
        submission.status = Status.exeerr
     end
+    if submission.status == Status.wa
+      submission.message = `clara feedback --feedtype python  \
+      /tmp/clara/examples/ex1.py #{source_file} \
+      --entryfnc computeDeriv \
+      --args "[[[4.5]], [[1.0,3.0,5.5]]]" \
+      --verbose 0`.chomp
+    end
   end
 
   def cleanup(raise_exception = true)
