@@ -1,6 +1,8 @@
 # smartJudge API
 smartJudge is an online platform where students can practice with introductory programming problems and receive auto generated repair hints when solution is incorrect.
 
+Link to smartJudge IDE: https://github.com/lethehaiau/smartJudgeIDE
+
 ## Supported Languages
 Python
 
