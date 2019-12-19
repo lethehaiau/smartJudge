@@ -10,6 +10,7 @@
 #  solution_function :string
 #  created_at        :datetime         not null
 #  updated_at        :datetime         not null
+#  arguments         :string
 #
 
 class Problem < ApplicationRecord

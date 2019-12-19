@@ -1,3 +1,3 @@
 class ProblemSerializer < ActiveModel::Serializer
-  attributes :id, :title, :description, :solution_function
+  attributes :id, :title, :description, :solution_function, :arguments
 end
