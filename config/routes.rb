@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  resources :problems
   root 'home#docs'
 
   resources :submissions, only: [:index, :show, :create], param: :token
