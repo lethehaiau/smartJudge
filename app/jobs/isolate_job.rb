@@ -60,9 +60,10 @@ class IsolateJob < ApplicationJob
     [stdin_file, stdout_file, stderr_file, metadata_file].each do |f|
       initialize_file(f)
     end
-    args_parser = "import sys\nfrom ast import literal_eval\n\nif __name__ == '__main__':\n    # Map command line arguments to function arguments.\n    args = literal_eval(sys.argv[1])\n    results = []\n    for arg in args:\n      results.append(computeDeriv(*arg))\n    print(results)"
+    args_parser = "import sys\nfrom ast import literal_eval\n\nif __name__ == '__main__':\n    # Map command line arguments to function arguments.\n    args = literal_eval(sys.argv[1])\n    results = []\n    for arg in args:\n      results.append(#{submission.problem.solution_function}(*arg))\n    print(results)"
     File.open(source_file, "wb") { |f| f.write("#{submission.source_code}\n#{args_parser}") }
     File.open(stdin_file, "wb") { |f| f.write(submission.stdin) }
+    puts args_parser
   end
 
   def initialize_file(file)
@@ -132,10 +133,10 @@ class IsolateJob < ApplicationJob
 
   def run
     if submission.command_line_arguments.nil?
-      arg_input = File.read("problems/#{submission.problem_id}/arg_input.txt")
-      command_line_arguments = arg_input.to_s.strip.encode("UTF-8", invalid: :replace).gsub(/[$&;<>|`]/, "")
-      expected_out = File.read("problems/#{submission.problem_id}/expected_output.txt")
-      submission.expected_output = expected_out
+      command_line_arguments = submission.problem.inputs.to_s.strip.encode("UTF-8", invalid: :replace).gsub(/[$&;<>|`]/, "")
+      puts command_line_arguments;
+      submission.expected_output = submission.problem.outputs
+      puts submission.expected_output;
     else
       # gsub is mandatory!
       command_line_arguments = submission.command_line_arguments.to_s.strip.encode("UTF-8", invalid: :replace).gsub(/[$&;<>|`]/, "")
@@ -175,15 +176,14 @@ class IsolateJob < ApplicationJob
   def verify
     submission.finished_at ||= DateTime.now
     if submission.command_line_arguments.nil?
-      arg_input = File.read("problems/#{submission.problem_id}/arg_input.txt")
-      command_line_arguments = arg_input.to_s.strip.encode("UTF-8", invalid: :replace).gsub(/[$&;<>|`]/, "")
+      command_line_arguments = submission.problem.inputs.to_s.strip.encode("UTF-8", invalid: :replace).gsub(/[$&;<>|`]/, "")
     else
       # gsub is mandatory!
       command_line_arguments = submission.command_line_arguments.to_s.strip.encode("UTF-8", invalid: :replace).gsub(/[$&;<>|`]/, "")
     end
     metadata = get_metadata
 
-    program_stdout = File.read(stdout_file)
+    program_stdout = File.read(stdout_file).chomp.delete!("\s")
     program_stdout = nil if program_stdout.empty?
 
     program_stderr = File.read(stderr_file)
@@ -219,7 +219,7 @@ class IsolateJob < ApplicationJob
     if submission.status == Status.wa
       submission.message = `clara feedback --feedtype python  \
       /tmp/clara/examples/ex1.py #{source_file} \
-      --entryfnc computeDeriv \
+      --entryfnc "#{submission.problem.solution_function}" \
       --args "#{command_line_arguments}" \
       --verbose 0`.chomp
     end

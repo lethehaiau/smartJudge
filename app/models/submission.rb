@@ -65,7 +65,7 @@ class Submission < ApplicationRecord
             numericality: { greater_than: 0, less_than_or_equal_to: Config::MAX_MAX_FILE_SIZE }
   validates :compiler_options, length: { maximum: 128 }
   validates :command_line_arguments, length: { maximum: 128 }
-  validate :language_existence, :compiler_options_allowed, :command_line_arguments_allowed
+  validate :language_existence, :problem_existence, :compiler_options_allowed, :command_line_arguments_allowed
 
   before_create :generate_token
   before_validation :set_defaults
@@ -140,6 +140,9 @@ class Submission < ApplicationRecord
     @language ||= Language.find(language_id)
   end
 
+  def problem
+    @problem ||= Problem.find(problem_id)
+  end
 
   def status
     Status.find_by(id: status_id)
@@ -154,6 +157,12 @@ class Submission < ApplicationRecord
   def language_existence
     if language_id && !Language.exists?(language_id)
       errors.add(:language_id, "language with id #{language_id} doesn't exist")
+    end
+  end
+
+  def problem_existence
+    if problem_id && !Problem.exists?(problem_id)
+      errors.add(:problem_id, "problem with id #{problem_id} doesn't exist")
     end
   end
 
