@@ -44,6 +44,8 @@ You need to run Rails API and Worker in order to have Judge0 API fully operation
 
 This is minimal setup for development environment, now you can open your favorite editor in your host and start developing Judge0 API.
 
+Possible error: if you get error when run rails migrate it may due to failed to load the env config, try `source scripts/load-config`
+
 ## About Docker Images
 This project has two Dockerfiles:
 1. [Dockerfile](https://github.com/lethehaiau/smartJudge/blob/master/Dockerfile)
