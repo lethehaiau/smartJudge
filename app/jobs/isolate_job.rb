@@ -140,6 +140,7 @@ class IsolateJob < ApplicationJob
     else
       # gsub is mandatory!
       command_line_arguments = submission.command_line_arguments.to_s.strip.encode("UTF-8", invalid: :replace).gsub(/[$&;<>|`]/, "")
+      puts command_line_arguments;
     end
     run_script = boxdir + "/" + "run"
     File.open(run_script, "w") { |f| f.write("#{submission.language.run_cmd} \"#{command_line_arguments}\"")}
@@ -183,7 +184,7 @@ class IsolateJob < ApplicationJob
     end
     metadata = get_metadata
 
-    program_stdout = File.read(stdout_file).chomp.delete!("\s")
+    program_stdout = File.read(stdout_file).chomp.delete(' ')
     program_stdout = nil if program_stdout.empty?
 
     program_stderr = File.read(stderr_file)
